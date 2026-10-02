@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Configuración - JZ Middle ML-Tracker</title>
-    <link rel="stylesheet" href="/static/css/app.css?v=0.2.0">
+    <link rel="stylesheet" href="/static/css/app.css?v=0.3.0">
 </head>
 <body>
     <header class="barra">
@@ -64,6 +64,19 @@
             </form>
         </section>
 
+        <section class="tarjeta" id="sec-cuentas">
+            <h2>Cuentas de Mercado Libre</h2>
+            <p class="ayuda">Se pueden conectar varias cuentas. Mercado Libre autoriza la cuenta que tenga la sesión abierta en este navegador: para conectar otra, cerrá la sesión de Mercado Libre antes (o usá una ventana privada).</p>
+            <ul id="lista-cuentas" class="cuentas"></ul>
+            <p id="sin-cuentas" class="ayuda">Todavía no hay cuentas conectadas.</p>
+            <div class="acciones">
+                <button type="button" id="btn-conectar-cuenta">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Conectar cuenta
+                </button>
+            </div>
+        </section>
+
         <section class="tarjeta" id="sec-estado">
             <h2>Estado del servicio</h2>
             <dl class="datos">
@@ -74,7 +87,7 @@
     </main>
 
     <p id="mensaje" class="mensaje mensaje-flotante" role="alert"></p>
-    <script src="/static/js/api.js?v=0.2.0"></script>
-    <script src="/static/js/panel.js?v=0.2.0"></script>
+    <script src="/static/js/api.js?v=0.3.0"></script>
+    <script src="/static/js/panel.js?v=0.3.0"></script>
 </body>
 </html>

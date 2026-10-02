@@ -43,6 +43,7 @@ async def _estado(conn: asyncpg.Connection) -> dict:
     tracker_url = await leer(conn, "tracker_url")
     canal = json.loads(await leer(conn, "tracker_canal", "null"))
     ml_id = await leer(conn, "ml_client_id")
+    cuentas = await conn.fetch("SELECT nickname, user_id, status, client_id FROM ml_accounts ORDER BY connected_at")
     return {
         "tracker": {"url": tracker_url, "api_key_set": bool(await leer(conn, "tracker_api_key")), "canal": canal},
         "ml": {"client_id": ml_id, "client_secret_set": bool(await leer(conn, "ml_client_secret")),
@@ -56,7 +57,10 @@ async def _estado(conn: asyncpg.Connection) -> dict:
             ("Conectar con Tracker360 y probar la conexión.", canal is None),
             ("Cargar la aplicación de Mercado Libre (Client ID y Client Secret).",
              not (ml_id and await leer(conn, "ml_client_secret"))),
-        ) if falta],
+            ("Conectar al menos una cuenta de Mercado Libre.", not cuentas),
+        ) if falta] + [
+            f"La cuenta {c['nickname'] or c['user_id']} necesita reconectarse con Mercado Libre." for c in cuentas
+            if c["status"] != "ACTIVA" or c["client_id"] != ml_id],
     }
 
 

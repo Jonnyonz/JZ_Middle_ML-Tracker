@@ -2,6 +2,7 @@ from jztech_core.logging_setup import configure_logging, install_generic_error_h
 
 configure_logging()
 
+import asyncio
 from contextlib import asynccontextmanager
 import logging
 from pathlib import Path
@@ -11,7 +12,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from jztech_core.security_headers import SecurityHeadersMiddleware
 
-from jzmiddle import __version__, ajustes, auth, db
+from jzmiddle import __version__, ajustes, auth, cuentas, db, ml
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,9 @@ CSP = "; ".join([
 async def lifespan(app: FastAPI):
     await db.iniciar()
     logger.info(f"JZ Middle ML-Tracker {__version__} iniciado.")
+    renovacion = asyncio.create_task(ml.renovacion_en_segundo_plano(lambda: db.DB.pool))
     yield
+    renovacion.cancel()
     await db.cerrar()
 
 
@@ -47,6 +50,8 @@ app.add_middleware(SecurityHeadersMiddleware, csp=CSP, permissions_policy="geolo
 
 app.include_router(auth.router)
 app.include_router(ajustes.router)
+app.include_router(cuentas.router)
+app.include_router(cuentas.callback_router)
 
 
 @app.get("/api/health")

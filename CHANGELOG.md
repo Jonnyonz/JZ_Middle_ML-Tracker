@@ -2,6 +2,19 @@
 
 Cambios de JZ Middle ML-Tracker, del más nuevo al más viejo. Cada entrada corresponde a un push a `main`.
 
+## 2026-10-02 - 0.3.0
+
+### Agregado
+- Cuentas de Mercado Libre: botón "Conectar cuenta" que lleva a Mercado Libre a autorizar la cuenta y
+  vuelve a la página. Se pueden conectar varias cuentas; reconectar una no la duplica. Cada cuenta muestra
+  su estado, hasta cuándo vale el permiso y los avisos (permiso revocado, aplicación cambiada, falta el
+  permiso offline_access), con botones para probarla y para desconectarla.
+- Los permisos de cada cuenta se renuevan solos antes de vencer, sin que nadie tenga que entrar.
+
+### Seguridad
+- La autorización usa PKCE y un código de un solo uso que vence a los 10 minutos. Los permisos de las
+  cuentas nunca se muestran en la página.
+
 ## 2026-10-02 - 0.2.0
 
 ### Agregado

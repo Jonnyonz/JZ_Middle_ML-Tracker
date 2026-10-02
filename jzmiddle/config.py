@@ -57,3 +57,10 @@ UPDATER_GITHUB_REPO = os.getenv("UPDATER_GITHUB_REPO", "Jonnyonz/JZ_Middle_ML-Tr
 MAX_LOGIN_ATTEMPTS = int(os.getenv("MAX_LOGIN_ATTEMPTS", "5"))
 LOCKOUT_MINUTES = int(os.getenv("LOCKOUT_MINUTES", "15"))
 SESSION_HOURS = int(os.getenv("SESSION_HOURS", "8"))
+
+# Mercado Libre. ML_AUTH_URL es la pantalla de autorizacion del pais de la cuenta (Argentina por
+# defecto; Brasil: https://auth.mercadolivre.com.br). ML_API_URL es la API (la misma para todos).
+ML_AUTH_URL = os.getenv("ML_AUTH_URL", "https://auth.mercadolibre.com.ar").rstrip("/")
+ML_API_URL = os.getenv("ML_API_URL", "https://api.mercadolibre.com").rstrip("/")
+# Cada cuantos segundos se revisan los tokens que estan por vencer (se renuevan antes de vencer).
+ML_RENOVAR_SEGUNDOS = int(os.getenv("ML_RENOVAR_SEGUNDOS", "600"))

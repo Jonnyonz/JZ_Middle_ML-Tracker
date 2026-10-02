@@ -1,4 +1,10 @@
 {
+  "DELETE /api/ml/cuentas/{user_id}": {
+    "cuerpo": false,
+    "params": [
+      "path:user_id"
+    ]
+  },
   "GET /": {
     "cuerpo": false,
     "params": []
@@ -19,6 +25,18 @@
     "cuerpo": false,
     "params": []
   },
+  "GET /api/ml/cuentas": {
+    "cuerpo": false,
+    "params": []
+  },
+  "GET /ml/callback": {
+    "cuerpo": false,
+    "params": [
+      "query:code",
+      "query:error",
+      "query:state"
+    ]
+  },
   "GET /panel": {
     "cuerpo": false,
     "params": []
@@ -38,6 +56,16 @@
   "POST /api/config/tracker/test": {
     "cuerpo": false,
     "params": []
+  },
+  "POST /api/ml/cuentas/conectar": {
+    "cuerpo": false,
+    "params": []
+  },
+  "POST /api/ml/cuentas/{user_id}/probar": {
+    "cuerpo": false,
+    "params": [
+      "path:user_id"
+    ]
   },
   "PUT /api/config/ml": {
     "cuerpo": true,
