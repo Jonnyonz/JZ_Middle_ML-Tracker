@@ -11,7 +11,7 @@ import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 
-from jzmiddle import ml
+from jzmiddle import avisos, ml
 from jzmiddle.auth import client_ip, registrar, require_admin
 from jzmiddle.db import get_conn
 
@@ -100,4 +100,5 @@ async def callback(request: Request, code: str = "", state: str = "", error: str
         await registrar(conn, fila["username"], "ML_CUENTA_ERROR", str(e), client_ip(request))
         return al_panel("error")
     await registrar(conn, fila["username"], "ML_CUENTA_CONECTADA", f"Cuenta {cuenta['nickname']} ({cuenta['user_id']})", client_ip(request))
+    await avisos.reactivar_cuenta(conn, cuenta["user_id"])
     return al_panel("conectada")

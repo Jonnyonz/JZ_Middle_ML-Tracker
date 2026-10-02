@@ -105,8 +105,41 @@ async function cargarCuentas() {
     document.getElementById('sin-cuentas').classList.toggle('oculto', cuentas.length > 0);
 }
 
+const NOMBRE_ESTADO_AVISO = {
+    PENDIENTE: 'en espera', PROCESANDO: 'procesando', HECHA: 'procesado', DESCARTADA: 'descartado', ERROR: 'error',
+};
+
+async function cargarAvisos() {
+    const a = await api('/api/ml/avisos/estado');
+    document.getElementById('avisos-pendientes').textContent = String(a.pendientes);
+    document.getElementById('avisos-errores').textContent = String(a.errores);
+    document.getElementById('avisos-recibido').textContent = a.ultima_recibida
+        ? fechaHora(a.ultima_recibida) : 'todavía no llegó ninguno (llegan con la primera venta o cambio)';
+    document.getElementById('avisos-procesado').textContent = a.ultima_procesada ? fechaHora(a.ultima_procesada) : '-';
+    document.getElementById('avisos-filtro').textContent = a.filtro_ips
+        ? 'solo se aceptan desde las IPs de Mercado Libre' : 'se aceptan de cualquier IP (ML_NOTIFICACIONES_IPS sin cargar)';
+    document.getElementById('btn-reintentar-avisos').classList.toggle('oculto', a.errores === 0);
+    document.getElementById('lista-avisos').replaceChildren(...a.recientes.map(r => {
+        const li = document.createElement('li');
+        const estado = document.createElement('span');
+        estado.className = 'aviso-estado ' + r.status;
+        estado.textContent = NOMBRE_ESTADO_AVISO[r.status] || r.status;
+        const recurso = document.createElement('code');
+        recurso.textContent = r.resource;
+        const detalle = document.createElement('span');
+        detalle.className = 'aviso-detalle';
+        const partes = [r.nickname || String(r.user_id), fechaHora(r.processed_at || r.last_received_at)];
+        if (r.received_count > 1) partes.push(`${r.received_count} avisos juntos`);
+        if (r.last_error && r.status !== 'HECHA') partes.push(r.last_error);
+        else if (r.result && r.status === 'DESCARTADA') partes.push(r.result);
+        detalle.textContent = partes.join(' · ');
+        li.append(estado, recurso, detalle);
+        return li;
+    }));
+}
+
 async function recargarTodo() {
-    await Promise.all([cargarConfiguracion(), cargarCuentas()]);
+    await Promise.all([cargarConfiguracion(), cargarCuentas(), cargarAvisos()]);
 }
 
 async function cargarConfiguracion() {
@@ -166,6 +199,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const texto = document.getElementById(b.dataset.copiar).textContent;
         try { await navigator.clipboard.writeText(texto); mostrarMensaje('Copiado.'); }
         catch (e) { mostrarMensaje('No se pudo copiar: seleccioná el texto a mano.', 'error'); }
+    }));
+
+    const btnAvisos = document.getElementById('btn-actualizar-avisos');
+    btnAvisos.addEventListener('click', conBoton(btnAvisos, cargarAvisos));
+    const btnReintentar = document.getElementById('btn-reintentar-avisos');
+    btnReintentar.addEventListener('click', conBoton(btnReintentar, async () => {
+        const r = await api('/api/ml/avisos/reintentar', { method: 'POST' });
+        mostrarMensaje(`${r.reintentados} aviso(s) vuelven a la cola.`);
+        await cargarAvisos();
     }));
 
     const btnConectar = document.getElementById('btn-conectar-cuenta');

@@ -64,3 +64,21 @@ ML_AUTH_URL = os.getenv("ML_AUTH_URL", "https://auth.mercadolibre.com.ar").rstri
 ML_API_URL = os.getenv("ML_API_URL", "https://api.mercadolibre.com").rstrip("/")
 # Cada cuantos segundos se revisan los tokens que estan por vencer (se renuevan antes de vencer).
 ML_RENOVAR_SEGUNDOS = int(os.getenv("ML_RENOVAR_SEGUNDOS", "600"))
+
+# Avisos (notificaciones) de Mercado Libre. ML no los firma: el contenido no se cree, solo dice "cambio
+# tal recurso" y el middleware lo consulta en ML con el token de la cuenta. Ademas se puede limitar a las
+# IPs desde las que ML los manda (vacio = no filtrar). ML documenta:
+# 54.88.218.97, 18.215.140.160, 18.213.114.129, 18.206.34.84
+ML_NOTIFICACIONES_IPS = []
+for _parte in os.getenv("ML_NOTIFICACIONES_IPS", "").split(","):
+    _parte = _parte.strip()
+    if _parte:
+        try:
+            ML_NOTIFICACIONES_IPS.append(ipaddress.ip_network(_parte, strict=False))
+        except ValueError:
+            logger.warning(f"ML_NOTIFICACIONES_IPS: valor invalido ignorado: {_parte}")
+# Cola de avisos: cada cuantos segundos se revisa (ademas se despierta al llegar un aviso), espera base
+# entre reintentos (se duplica en cada intento, hasta 1 hora) y cantidad maxima de intentos.
+ML_COLA_SEGUNDOS = int(os.getenv("ML_COLA_SEGUNDOS", "5"))
+ML_COLA_REINTENTO_SEGUNDOS = int(os.getenv("ML_COLA_REINTENTO_SEGUNDOS", "15"))
+ML_COLA_MAX_INTENTOS = int(os.getenv("ML_COLA_MAX_INTENTOS", "10"))

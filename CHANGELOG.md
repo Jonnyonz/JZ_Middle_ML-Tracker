@@ -2,6 +2,24 @@
 
 Cambios de JZ Middle ML-Tracker, del más nuevo al más viejo. Cada entrada corresponde a un push a `main`.
 
+## 2026-10-02 - 0.4.0
+
+### Agregado
+- Recepción de los avisos de Mercado Libre (ventas, envíos y publicaciones) en la dirección de
+  notificaciones. Se contestan al instante, se guardan en una cola y se procesan en orden, consultando
+  cada cambio en Mercado Libre. Los avisos repetidos del mismo cambio se juntan.
+- Si Mercado Libre no responde o pide esperar, se reintenta solo con esperas cada vez más largas. Los que
+  fallan quedan marcados y se pueden reintentar desde la página; los de una cuenta que se reconecta
+  vuelven a la cola solos.
+- Sección "Avisos de Mercado Libre" en la página: cuántos esperan, cuántos fallaron, el último recibido y
+  los más recientes con su resultado. La sección de la aplicación muestra los temas a activar.
+
+### Seguridad
+- Los avisos de Mercado Libre no vienen firmados: no se cree en su contenido. Solo se aceptan los de la
+  aplicación configurada y de cuentas conectadas, y cada cambio se confirma consultándolo en Mercado
+  Libre con el permiso de la cuenta. Opcionalmente se aceptan solo desde las IPs de Mercado Libre
+  (ML_NOTIFICACIONES_IPS).
+
 ## 2026-10-02 - 0.3.0
 
 ### Agregado

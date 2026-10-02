@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Configuración - JZ Middle ML-Tracker</title>
-    <link rel="stylesheet" href="/static/css/app.css?v=0.3.0">
+    <link rel="stylesheet" href="/static/css/app.css?v=0.4.0">
 </head>
 <body>
     <header class="barra">
@@ -55,6 +55,7 @@
             <dl class="datos">
                 <dt>Dirección de retorno</dt><dd><code id="ml-redirect">-</code> <button type="button" class="secundario copiar" data-copiar="ml-redirect">Copiar</button></dd>
                 <dt>Notificaciones</dt><dd><code id="ml-notif">-</code> <button type="button" class="secundario copiar" data-copiar="ml-notif">Copiar</button></dd>
+                <dt>Temas a activar</dt><dd><code>orders_v2</code>, <code>shipments</code> e <code>items</code> (ventas, envíos y publicaciones)</dd>
             </dl>
             <form id="form-ml" autocomplete="off">
                 <label>Client ID (App ID) <input id="ml-client-id" inputmode="numeric" required></label>
@@ -77,6 +78,23 @@
             </div>
         </section>
 
+        <section class="tarjeta" id="sec-avisos">
+            <h2>Avisos de Mercado Libre</h2>
+            <p class="ayuda">Mercado Libre avisa cada venta, cambio de envío o de publicación a la dirección de notificaciones. Se consultan en Mercado Libre y se procesan en orden.</p>
+            <dl class="datos">
+                <dt>En espera</dt><dd id="avisos-pendientes">-</dd>
+                <dt>Con error</dt><dd id="avisos-errores">-</dd>
+                <dt>Último recibido</dt><dd id="avisos-recibido">-</dd>
+                <dt>Último procesado</dt><dd id="avisos-procesado">-</dd>
+                <dt>Origen</dt><dd id="avisos-filtro">-</dd>
+            </dl>
+            <ul id="lista-avisos" class="avisos"></ul>
+            <div class="acciones">
+                <button type="button" id="btn-actualizar-avisos" class="secundario">Actualizar</button>
+                <button type="button" id="btn-reintentar-avisos" class="secundario oculto">Reintentar los que fallaron</button>
+            </div>
+        </section>
+
         <section class="tarjeta" id="sec-estado">
             <h2>Estado del servicio</h2>
             <dl class="datos">
@@ -87,7 +105,7 @@
     </main>
 
     <p id="mensaje" class="mensaje mensaje-flotante" role="alert"></p>
-    <script src="/static/js/api.js?v=0.3.0"></script>
-    <script src="/static/js/panel.js?v=0.3.0"></script>
+    <script src="/static/js/api.js?v=0.4.0"></script>
+    <script src="/static/js/panel.js?v=0.4.0"></script>
 </body>
 </html>

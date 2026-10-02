@@ -124,6 +124,14 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .etiqueta.ok { color: var(--ok); }
 .etiqueta.aviso { color: var(--aviso); }
 
+.avisos { list-style: none; margin: 14px 0 12px; padding: 0; display: grid; gap: 4px; font-size: 0.85rem; }
+.avisos li { display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid var(--borde); padding: 4px 0; }
+.avisos .aviso-estado { min-width: 90px; font-weight: 600; }
+.avisos .HECHA { color: var(--ok); }
+.avisos .ERROR { color: var(--error); }
+.avisos .PENDIENTE, .avisos .PROCESANDO { color: var(--aviso); }
+.avisos .DESCARTADA, .avisos .aviso-detalle { color: var(--suave); }
+
 .mensaje { margin: 0; min-height: 1.2em; font-size: 0.9rem; }
 .mensaje.error { color: var(--error); }
 .mensaje.ok { color: var(--ok); }
