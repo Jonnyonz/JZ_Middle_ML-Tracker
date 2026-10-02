@@ -87,3 +87,8 @@ ML_COLA_MAX_INTENTOS = int(os.getenv("ML_COLA_MAX_INTENTOS", "10"))
 # cuantos minutos se repasa todo (todas las publicaciones contra el stock de Tracker).
 ML_STOCK_SEGUNDOS = int(os.getenv("ML_STOCK_SEGUNDOS", "15"))
 ML_CONCILIAR_MINUTOS = int(os.getenv("ML_CONCILIAR_MINUTOS", "60"))
+
+# Instalacion: "nativa" (install-native.sh) o Docker. La pagina muestra como actualizar segun el caso.
+JZM_INSTALACION = os.getenv("JZM_INSTALACION", "docker").strip().lower()
+# API de GitHub para el aviso de version nueva (se puede cambiar solo para pruebas).
+UPDATER_API_URL = os.getenv("UPDATER_API_URL", "https://api.github.com").rstrip("/")

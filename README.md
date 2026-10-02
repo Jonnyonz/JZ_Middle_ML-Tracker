@@ -53,7 +53,53 @@ ml.cliente.com {
 Entrar a `https://ml.cliente.com`, crear el administrador con el `SETUP_TOKEN` del `.env` y seguir
 la configuración desde la página.
 
-La instalación nativa (sin Docker, con systemd) se agrega con `install-native.sh`.
+## Instalación nativa (sin Docker)
+
+Recomendada para el servidor del cliente. Debian 12, Debian 13 o Ubuntu 24.04 (Python 3.11 o más nuevo),
+en el mismo servidor que Tracker360. El subdominio tiene que apuntar al servidor (puertos 80 y 443
+abiertos) para que Caddy saque el certificado:
+
+```bash
+git clone https://github.com/Jonnyonz/JZ_Middle_ML-Tracker.git
+cd JZ_Middle_ML-Tracker
+sudo JZM_DOMAIN=ml.cliente.com ./install-native.sh
+```
+
+El instalador deja:
+
+- el código y su entorno en `/opt/jzmiddle/releases/<versión>`, con `/opt/jzmiddle/current` apuntando a la
+  versión en uso;
+- la configuración en `/etc/jzmiddle/jzmiddle.env` (claves generadas; no se pisan si se vuelve a correr);
+- la base y el rol `jzmiddle` propios en el PostgreSQL del servidor;
+- el servicio `jzmiddle` (systemd, usuario sin login, solo en `127.0.0.1:8040`);
+- Caddy con HTTPS para el subdominio.
+
+Al final muestra el token para crear el administrador y la dirección de Tracker que hay que cargar en la
+página (`http://127.0.0.1:<puerto de Tracker>`). Se puede volver a correr sin perder nada.
+
+Opciones: `JZM_CADDY=0` (el servidor ya tiene otro proxy HTTPS: el instalador muestra qué configurar) y
+`JZM_TLS_INTERNAL=1` (solo laboratorio: certificado de la CA local de Caddy, que Mercado Libre no acepta).
+No instala compilador. Si hay una carpeta `wheelhouse/` al lado del script, instala sin internet.
+
+## Actualizar
+
+Instalación nativa:
+
+```bash
+sudo jz-middle-actualizar            # a la última versión publicada
+sudo jz-middle-actualizar --buscar   # solo avisa si hay una nueva
+sudo jz-middle-actualizar --volver   # vuelve a la versión anterior
+```
+
+Baja la versión de GitHub Releases y verifica su hash. Arma la versión nueva aparte; si algo falla en ese
+paso, no se cambió nada. Después respalda la base en `/var/backups/jzmiddle`, cambia de versión (las
+migraciones corren al arrancar) y verifica que responda. Si no responde, vuelve solo a la versión anterior
+y deja la base como estaba. La página avisa cuando hay una versión nueva.
+
+Con Docker: `git pull && docker compose up -d --build`.
+
+Para publicar una versión (mantenimiento): subir la versión en `jzmiddle/__init__.py` y el CHANGELOG,
+commit, `tools/empaquetar.sh` y crear el release `v<versión>` en GitHub con los dos archivos de `dist/`.
 
 ## Dependencias
 

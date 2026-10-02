@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from jztech_core.security_headers import SecurityHeadersMiddleware
 
-from jzmiddle import __version__, ajustes, auth, avisos, cuentas, db, ml, stock, ventas
+from jzmiddle import __version__, ajustes, auth, avisos, cuentas, db, ml, stock, ventas, version
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,7 @@ app.include_router(cuentas.callback_router)
 app.include_router(avisos.router)
 app.include_router(avisos.publico)
 app.include_router(stock.router)
+app.include_router(version.router)
 ventas.registrar()   # ventas de ML -> pedidos de Tracker (avisos orders_v2 y shipments)
 stock.registrar()    # publicaciones nuevas o editadas en ML (avisos items) -> stock de Tracker
 

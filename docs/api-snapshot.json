@@ -9,6 +9,10 @@
     "cuerpo": false,
     "params": []
   },
+  "GET /api/actualizacion": {
+    "cuerpo": false,
+    "params": []
+  },
   "GET /api/auth/me": {
     "cuerpo": false,
     "params": []

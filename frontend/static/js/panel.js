@@ -181,6 +181,18 @@ async function cargarEstado() {
     const salud = await api('/api/health');
     document.getElementById('estado-version').textContent = salud.version;
     document.getElementById('estado-esquema').textContent = String(salud.schema_version);
+    const a = await api('/api/actualizacion');
+    const destino = document.getElementById('estado-actualizacion');
+    if (a.hay_nueva) {
+        destino.className = 'cuenta-aviso';
+        destino.textContent = `Hay una versión nueva (${a.ultima}). Para actualizar, en el servidor: `;
+        const cmd = document.createElement('code');
+        cmd.textContent = a.como;
+        destino.append(cmd);
+    } else {
+        destino.className = '';
+        destino.textContent = a.ultima ? 'Al día.' : 'Sin datos de versiones publicadas.';
+    }
 }
 
 function conBoton(boton, fn) {

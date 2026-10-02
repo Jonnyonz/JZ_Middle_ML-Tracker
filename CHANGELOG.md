@@ -2,6 +2,18 @@
 
 Cambios de JZ Middle ML-Tracker, del más nuevo al más viejo. Cada entrada corresponde a un push a `main`.
 
+## 2026-10-02 - 0.8.0
+
+### Agregado
+- Instalación nativa sin Docker (`install-native.sh`) para Debian 12, Debian 13 y Ubuntu 24.04, en el
+  mismo servidor que Tracker360: servicio de systemd con un usuario sin permisos, base de datos propia en
+  el PostgreSQL del servidor, HTTPS con Caddy para el subdominio y claves generadas que no se pisan al
+  volver a instalar. No instala compilador y puede instalar sin internet.
+- Actualizador `sudo jz-middle-actualizar`: baja la versión publicada, verifica su hash, respalda la base,
+  cambia de versión y comprueba que responda. Si la versión nueva no arranca, vuelve sola a la anterior y
+  deja la base como estaba. También puede volver a la versión anterior a pedido (`--volver`).
+- La página avisa cuando hay una versión nueva y muestra cómo actualizar.
+
 ## 2026-10-02 - 0.7.0
 
 ### Cambiado
