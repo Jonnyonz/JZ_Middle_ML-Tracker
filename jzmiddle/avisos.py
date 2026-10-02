@@ -45,6 +45,15 @@ _REEMPLAZADO = "Reemplazado por un aviso más nuevo del mismo recurso."
 # tema -> async (conn, aviso, datos del recurso en ML) -> texto del resultado
 MANEJADORES: Dict[str, Callable[[asyncpg.Connection, asyncpg.Record, dict], Awaitable[str]]] = {}
 
+
+class ErrorAviso(Exception):
+    """Lo levanta un manejador cuando hay que arreglar algo a mano (un SKU que falta, un pedido ya
+    despachado): el aviso queda en ERROR con este mensaje y se reintenta desde la pagina."""
+
+
+class Reintentar(Exception):
+    """Lo levanta un manejador ante un problema pasajero (Tracker o ML caidos): se reintenta solo."""
+
 _despertar = asyncio.Event()
 
 
@@ -196,6 +205,18 @@ async def _procesar(conn: asyncpg.Connection, aviso: asyncpg.Record) -> None:
     manejador = MANEJADORES.get(aviso["topic"])
     try:
         resultado = await manejador(conn, aviso, r.json()) if manejador else "Consultado en Mercado Libre."
+    except ErrorAviso as e:
+        await _terminar(conn, aviso["id"], "ERROR", str(e))
+        return
+    except Reintentar as e:
+        await _reprogramar(conn, aviso, str(e))
+        return
+    except ml.ErrorML as e:
+        if e.reconectar:
+            await _terminar(conn, aviso["id"], "ERROR", str(e))
+        else:
+            await _reprogramar(conn, aviso, str(e))
+        return
     except Exception as e:
         logger.exception(f"[AVISOS] Error procesando {aviso['topic']} {aviso['resource']}")
         await _reprogramar(conn, aviso, f"Error al procesar: {e!r}")

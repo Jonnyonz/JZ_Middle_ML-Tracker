@@ -2,8 +2,10 @@
 se cargan desde la pagina (ajustes tracker_url y tracker_api_key)."""
 
 import logging
-from urllib.parse import urlparse
+from typing import Optional
+from urllib.parse import quote, urlparse
 
+import asyncpg
 import httpx
 
 logger = logging.getLogger(__name__)
@@ -12,7 +14,12 @@ TIMEOUT = httpx.Timeout(15.0, connect=5.0)
 
 
 class ErrorTracker(Exception):
-    """Tracker no responde, rechaza la clave o devuelve un error. El mensaje es apto para mostrar."""
+    """Tracker no responde, rechaza la clave o devuelve un error. El mensaje es apto para mostrar.
+    reintentable=True: es un problema pasajero (Tracker caido o reiniciando), conviene reintentar."""
+
+    def __init__(self, mensaje: str, reintentable: bool = False):
+        super().__init__(mensaje)
+        self.reintentable = reintentable
 
 
 def validar_url(url: str) -> str:
@@ -30,10 +37,20 @@ async def llamar(url_base: str, clave: str, metodo: str, ruta: str, **kwargs) ->
             r = await c.request(metodo, ruta, **kwargs)
     except httpx.HTTPError as e:
         logger.warning(f"[TRACKER] {metodo} {ruta}: {e!r}")
-        raise ErrorTracker("No se pudo conectar con Tracker en esa dirección.")
+        raise ErrorTracker("No se pudo conectar con Tracker en esa dirección.", reintentable=True)
     if r.status_code == 401:
         raise ErrorTracker("Tracker rechazó la clave del canal (inválida o inactiva).")
+    if r.status_code >= 500:
+        raise ErrorTracker(f"Tracker respondió {r.status_code}.", reintentable=True)
     return r
+
+
+def _detalle(r: httpx.Response) -> str:
+    try:
+        d = r.json().get("detail")
+    except (ValueError, AttributeError):
+        d = None
+    return d if isinstance(d, str) else f"Tracker respondió {r.status_code}."
 
 
 async def canal_actual(url_base: str, clave: str) -> dict:
@@ -48,3 +65,45 @@ async def canal_actual(url_base: str, clave: str) -> dict:
     if not isinstance(datos, dict) or "code" not in datos:
         raise ErrorTracker("La dirección no responde como Tracker360.")
     return datos
+
+
+# --- Con la conexion cargada en la pagina ---
+async def _conexion(conn: asyncpg.Connection) -> tuple:
+    url = await conn.fetchval("SELECT value FROM settings WHERE key = 'tracker_url'")
+    clave = await conn.fetchval("SELECT value FROM settings WHERE key = 'tracker_api_key'")
+    if not url or not clave:
+        raise ErrorTracker("Falta configurar la conexión con Tracker en la página.")
+    return url, clave
+
+
+def _ruta_pedido(ref: str) -> str:
+    return "/api/v1/channel/orders/" + quote(ref, safe="")
+
+
+async def crear_pedido(conn: asyncpg.Connection, pedido: dict) -> dict:
+    """Alta idempotente (por external_ref): si ya existe, Tracker devuelve el mismo con created=false."""
+    url, clave = await _conexion(conn)
+    r = await llamar(url, clave, "POST", "/api/v1/channel/orders", json=pedido)
+    if r.status_code != 200:
+        raise ErrorTracker(_detalle(r))
+    return r.json()
+
+
+async def cancelar_pedido(conn: asyncpg.Connection, ref: str) -> Optional[dict]:
+    """None si el pedido no existe en Tracker. ErrorTracker si no se puede cancelar (ya despachado)."""
+    url, clave = await _conexion(conn)
+    r = await llamar(url, clave, "POST", _ruta_pedido(ref) + "/cancel")
+    if r.status_code == 404:
+        return None
+    if r.status_code != 200:
+        raise ErrorTracker(_detalle(r))
+    return r.json()
+
+
+async def subir_etiqueta(conn: asyncpg.Connection, ref: str, zpl: str) -> dict:
+    """Etiqueta ZPL del canal: Tracker la imprime al empacar (o en el momento si ya se despacho)."""
+    url, clave = await _conexion(conn)
+    r = await llamar(url, clave, "PUT", _ruta_pedido(ref) + "/label", json={"zpl": zpl})
+    if r.status_code != 200:
+        raise ErrorTracker(_detalle(r))
+    return r.json()

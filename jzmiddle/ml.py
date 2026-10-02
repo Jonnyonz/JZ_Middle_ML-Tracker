@@ -187,10 +187,11 @@ async def renovar(conn: asyncpg.Connection, user_id: int, margen: timedelta = MA
 async def llamar(conn: asyncpg.Connection, user_id: int, metodo: str, ruta: str, **kwargs) -> httpx.Response:
     """Llamada a la API de ML con el token de la cuenta. Si ML lo rechaza (401), lo renueva y reintenta una vez."""
     token = await renovar(conn, user_id)
+    extra = kwargs.pop("headers", None) or {}
     for intento in range(2):
         try:
             async with httpx.AsyncClient(base_url=config.ML_API_URL, timeout=TIMEOUT) as c:
-                r = await c.request(metodo, ruta, headers={"Authorization": f"Bearer {token}"}, **kwargs)
+                r = await c.request(metodo, ruta, headers={**extra, "Authorization": f"Bearer {token}"}, **kwargs)
         except httpx.HTTPError as e:
             logger.warning(f"[ML] {metodo} {ruta}: {e!r}")
             raise ErrorML("No se pudo conectar con Mercado Libre.")

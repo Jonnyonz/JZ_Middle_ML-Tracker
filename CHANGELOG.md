@@ -2,6 +2,20 @@
 
 Cambios de JZ Middle ML-Tracker, del más nuevo al más viejo. Cada entrada corresponde a un push a `main`.
 
+## 2026-10-02 - 0.5.0
+
+### Agregado
+- Las ventas de Mercado Libre entran solas a Tracker como pedidos cuando se acredita el pago, con el
+  comprador, la dirección de envío, la cuenta y el tipo de envío. Un carrito (varios productos comprados
+  juntos) es un solo pedido. Los SKU tienen que ser los mismos en Mercado Libre y en Tracker.
+- La etiqueta de envío de Mercado Libre se baja apenas está lista y se manda a Tracker, que la imprime al
+  empacar.
+- Si la venta se cancela en Mercado Libre, el pedido se cancela en Tracker. Si Tracker ya lo despachó,
+  queda marcado para revisarlo a mano.
+- Las ventas Full no se cargan en Tracker (salen del depósito de Mercado Libre).
+- Si falta un SKU en Tracker o la publicación no tiene SKU, la venta queda con el error a la vista; una
+  vez corregido, se reintenta desde la página. Si Tracker no responde, se reintenta solo.
+
 ## 2026-10-02 - 0.4.0
 
 ### Agregado
