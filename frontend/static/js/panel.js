@@ -138,8 +138,38 @@ async function cargarAvisos() {
     }));
 }
 
+const NOMBRE_PROBLEMA = {
+    SIN_SKU: 'sin SKU', SKU_NO_EN_TRACKER: 'SKU no está en Tracker', FULL: 'Full (stock de ML)', ERROR: 'error',
+};
+
+async function cargarStock() {
+    const s = await api('/api/ml/stock/estado');
+    const poner = (id, v) => { document.getElementById(id).textContent = String(v); };
+    poner('stock-ok', s.sincronizadas);
+    poner('stock-sin-sku', s.sin_sku);
+    poner('stock-no-tracker', s.sku_no_en_tracker);
+    poner('stock-full', s.full);
+    poner('stock-error', s.con_error);
+    poner('stock-pendientes', s.pendientes);
+    poner('stock-conciliacion', s.ultima_conciliacion ? fechaHora(s.ultima_conciliacion) : 'todavía no');
+    poner('stock-envio', s.ultimo_envio ? fechaHora(s.ultimo_envio) : '-');
+    document.getElementById('lista-stock').replaceChildren(...s.problemas.map(p => {
+        const li = document.createElement('li');
+        const estado = document.createElement('span');
+        estado.className = 'aviso-estado ' + (p.problema === 'ERROR' ? 'ERROR' : 'PENDIENTE');
+        estado.textContent = NOMBRE_PROBLEMA[p.problema] || p.problema;
+        const id = document.createElement('code');
+        id.textContent = p.item_id + (p.variation_id ? ` / ${p.variation_id}` : '');
+        const detalle = document.createElement('span');
+        detalle.className = 'aviso-detalle';
+        detalle.textContent = [p.title, p.sku ? `SKU ${p.sku}` : '', p.nickname || '', p.last_error || ''].filter(Boolean).join(' · ');
+        li.append(estado, id, detalle);
+        return li;
+    }));
+}
+
 async function recargarTodo() {
-    await Promise.all([cargarConfiguracion(), cargarCuentas(), cargarAvisos()]);
+    await Promise.all([cargarConfiguracion(), cargarCuentas(), cargarAvisos(), cargarStock()]);
 }
 
 async function cargarConfiguracion() {
@@ -208,6 +238,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const r = await api('/api/ml/avisos/reintentar', { method: 'POST' });
         mostrarMensaje(`${r.reintentados} aviso(s) vuelven a la cola.`);
         await cargarAvisos();
+    }));
+
+    const btnStock = document.getElementById('btn-actualizar-stock');
+    btnStock.addEventListener('click', conBoton(btnStock, cargarStock));
+    const btnConciliar = document.getElementById('btn-conciliar-stock');
+    btnConciliar.addEventListener('click', conBoton(btnConciliar, async () => {
+        await api('/api/ml/stock/conciliar', { method: 'POST' });
+        mostrarMensaje('Repaso pedido: en unos segundos tocá "Actualizar".');
     }));
 
     const btnConectar = document.getElementById('btn-conectar-cuenta');

@@ -2,6 +2,23 @@
 
 Cambios de JZ Middle ML-Tracker, del más nuevo al más viejo. Cada entrada corresponde a un push a `main`.
 
+## 2026-10-02 - 0.6.0
+
+### Agregado
+- Tracker manda el stock a Mercado Libre: a todas las publicaciones activas (y a las pausadas por falta de
+  stock) de las cuentas conectadas cuyo SKU coincide con uno de Tracker, incluidas las variantes. Se manda
+  el disponible según el modo del canal en Tracker (disponible, o disponible menos lo comprometido).
+- Se actualiza apenas cambia el stock en Tracker, cuando alguien edita una publicación a mano en Mercado
+  Libre o publica una nueva, y con un repaso completo cada hora (o con el botón "Repasar todo ahora").
+  Solo se escribe en Mercado Libre cuando el número cambia; si Mercado Libre no responde, se reintenta.
+- Sección "Stock en Mercado Libre" en la página: cuántas publicaciones se sincronizan y la lista de las
+  que no se tocan, con el motivo (sin SKU, SKU que no está en Tracker, Full o error). Las pausadas a mano
+  por el vendedor tampoco se tocan.
+
+### Seguridad
+- En las publicaciones con variantes se mandan siempre todas las variantes (Mercado Libre borra las que
+  no vienen en el cambio).
+
 ## 2026-10-02 - 0.5.0
 
 ### Agregado

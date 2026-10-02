@@ -82,3 +82,8 @@ for _parte in os.getenv("ML_NOTIFICACIONES_IPS", "").split(","):
 ML_COLA_SEGUNDOS = int(os.getenv("ML_COLA_SEGUNDOS", "5"))
 ML_COLA_REINTENTO_SEGUNDOS = int(os.getenv("ML_COLA_REINTENTO_SEGUNDOS", "15"))
 ML_COLA_MAX_INTENTOS = int(os.getenv("ML_COLA_MAX_INTENTOS", "10"))
+
+# Stock de Tracker -> Mercado Libre. Cada cuantos segundos se leen los cambios de stock de Tracker y cada
+# cuantos minutos se repasa todo (todas las publicaciones contra el stock de Tracker).
+ML_STOCK_SEGUNDOS = int(os.getenv("ML_STOCK_SEGUNDOS", "15"))
+ML_CONCILIAR_MINUTOS = int(os.getenv("ML_CONCILIAR_MINUTOS", "60"))

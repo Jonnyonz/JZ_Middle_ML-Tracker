@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Configuración - JZ Middle ML-Tracker</title>
-    <link rel="stylesheet" href="/static/css/app.css?v=0.5.0">
+    <link rel="stylesheet" href="/static/css/app.css?v=0.6.0">
 </head>
 <body>
     <header class="barra">
@@ -95,6 +95,26 @@
             </div>
         </section>
 
+        <section class="tarjeta" id="sec-stock">
+            <h2>Stock en Mercado Libre</h2>
+            <p class="ayuda">Tracker manda el stock a todas las publicaciones activas (y a las pausadas por falta de stock) que tengan el mismo SKU. Las Full, las pausadas a mano y las que no coinciden con Tracker no se tocan: se listan abajo.</p>
+            <dl class="datos">
+                <dt>Sincronizadas</dt><dd id="stock-ok">-</dd>
+                <dt>Sin SKU</dt><dd id="stock-sin-sku">-</dd>
+                <dt>SKU que no está en Tracker</dt><dd id="stock-no-tracker">-</dd>
+                <dt>Full</dt><dd id="stock-full">-</dd>
+                <dt>Con error</dt><dd id="stock-error">-</dd>
+                <dt>Por revisar</dt><dd id="stock-pendientes">-</dd>
+                <dt>Último repaso completo</dt><dd id="stock-conciliacion">-</dd>
+                <dt>Último envío a ML</dt><dd id="stock-envio">-</dd>
+            </dl>
+            <ul id="lista-stock" class="avisos"></ul>
+            <div class="acciones">
+                <button type="button" id="btn-actualizar-stock" class="secundario">Actualizar</button>
+                <button type="button" id="btn-conciliar-stock" class="secundario">Repasar todo ahora</button>
+            </div>
+        </section>
+
         <section class="tarjeta" id="sec-estado">
             <h2>Estado del servicio</h2>
             <dl class="datos">
@@ -105,7 +125,7 @@
     </main>
 
     <p id="mensaje" class="mensaje mensaje-flotante" role="alert"></p>
-    <script src="/static/js/api.js?v=0.5.0"></script>
-    <script src="/static/js/panel.js?v=0.5.0"></script>
+    <script src="/static/js/api.js?v=0.6.0"></script>
+    <script src="/static/js/panel.js?v=0.6.0"></script>
 </body>
 </html>

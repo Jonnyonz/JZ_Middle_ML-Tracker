@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from jztech_core.security_headers import SecurityHeadersMiddleware
 
-from jzmiddle import __version__, ajustes, auth, avisos, cuentas, db, ml, ventas
+from jzmiddle import __version__, ajustes, auth, avisos, cuentas, db, ml, stock, ventas
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,8 @@ async def lifespan(app: FastAPI):
     await db.iniciar()
     logger.info(f"JZ Middle ML-Tracker {__version__} iniciado.")
     tareas = [asyncio.create_task(ml.renovacion_en_segundo_plano(lambda: db.DB.pool)),
-              asyncio.create_task(avisos.cola_en_segundo_plano(lambda: db.DB.pool))]
+              asyncio.create_task(avisos.cola_en_segundo_plano(lambda: db.DB.pool)),
+              asyncio.create_task(stock.stock_en_segundo_plano(lambda: db.DB.pool))]
     yield
     for tarea in tareas:
         tarea.cancel()
@@ -56,7 +57,9 @@ app.include_router(cuentas.router)
 app.include_router(cuentas.callback_router)
 app.include_router(avisos.router)
 app.include_router(avisos.publico)
+app.include_router(stock.router)
 ventas.registrar()   # ventas de ML -> pedidos de Tracker (avisos orders_v2 y shipments)
+stock.registrar()    # publicaciones nuevas o editadas en ML (avisos items) -> stock de Tracker
 
 
 @app.get("/api/health")

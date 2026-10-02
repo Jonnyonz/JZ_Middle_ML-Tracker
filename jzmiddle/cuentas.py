@@ -11,7 +11,7 @@ import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 
-from jzmiddle import avisos, ml
+from jzmiddle import avisos, ml, stock
 from jzmiddle.auth import client_ip, registrar, require_admin
 from jzmiddle.db import get_conn
 
@@ -101,4 +101,5 @@ async def callback(request: Request, code: str = "", state: str = "", error: str
         return al_panel("error")
     await registrar(conn, fila["username"], "ML_CUENTA_CONECTADA", f"Cuenta {cuenta['nickname']} ({cuenta['user_id']})", client_ip(request))
     await avisos.reactivar_cuenta(conn, cuenta["user_id"])
+    stock.pedir_conciliacion()   # sus publicaciones entran al indice y reciben el stock de Tracker
     return al_panel("conectada")

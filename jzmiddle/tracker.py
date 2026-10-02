@@ -107,3 +107,21 @@ async def subir_etiqueta(conn: asyncpg.Connection, ref: str, zpl: str) -> dict:
     if r.status_code != 200:
         raise ErrorTracker(_detalle(r))
     return r.json()
+
+
+async def eventos(conn: asyncpg.Connection, despues: int, limite: int = 500) -> dict:
+    """Eventos del canal con id mayor a `despues` ({events: [...], next_after})."""
+    url, clave = await _conexion(conn)
+    r = await llamar(url, clave, "GET", "/api/v1/channel/events", params={"after": despues, "limit": limite})
+    if r.status_code != 200:
+        raise ErrorTracker(_detalle(r))
+    return r.json()
+
+
+async def stock(conn: asyncpg.Connection, skus: list) -> dict:
+    """{SKU en mayusculas: disponible para el canal}. Los SKU que no existen en Tracker no aparecen."""
+    url, clave = await _conexion(conn)
+    r = await llamar(url, clave, "GET", "/api/v1/channel/stock", params={"skus": ",".join(skus)})
+    if r.status_code != 200:
+        raise ErrorTracker(_detalle(r))
+    return {f["sku"].upper(): float(f["available"]) for f in r.json().get("items", [])}

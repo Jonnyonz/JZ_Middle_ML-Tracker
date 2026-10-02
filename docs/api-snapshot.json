@@ -33,6 +33,10 @@
     "cuerpo": false,
     "params": []
   },
+  "GET /api/ml/stock/estado": {
+    "cuerpo": false,
+    "params": []
+  },
   "GET /ml/callback": {
     "cuerpo": false,
     "params": [
@@ -74,6 +78,10 @@
     "params": [
       "path:user_id"
     ]
+  },
+  "POST /api/ml/stock/conciliar": {
+    "cuerpo": false,
+    "params": []
   },
   "POST /ml/notifications": {
     "cuerpo": false,

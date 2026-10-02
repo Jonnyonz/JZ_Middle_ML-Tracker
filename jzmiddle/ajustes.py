@@ -83,8 +83,9 @@ async def guardar_tracker(data: TrackerInput, request: Request, admin: dict = De
         await guardar(conn, "tracker_url", url)
         if clave:
             await guardar(conn, "tracker_api_key", clave)
-        # Cambio la conexion: hay que volver a probarla.
-        await conn.execute("DELETE FROM settings WHERE key = 'tracker_canal'")
+        # Cambio la conexion: hay que volver a probarla. Los eventos de stock son de cada canal: se vuelve a
+        # leer desde el principio y se repasa todo el stock.
+        await conn.execute("DELETE FROM settings WHERE key IN ('tracker_canal', 'tracker_eventos_cursor', 'stock_ultima_conciliacion')")
         await registrar(conn, admin["username"], "CONFIG_TRACKER", f"Conexión con Tracker: {url}" + (" (clave nueva)" if clave else ""), client_ip(request))
     return await _estado(conn)
 

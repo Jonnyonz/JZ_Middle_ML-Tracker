@@ -36,6 +36,8 @@ TEMAS = {
     "shipments": re.compile(r"/shipments/\d{1,20}"),
     "items": re.compile(r"/items/[A-Z]{3}\d{1,20}"),
 }
+# Parametros de la consulta del recurso: sin include_attributes=all ML no manda el SKU de las variantes.
+PARAMETROS = {"items": {"include_attributes": "all"}}
 TAMANO_MAXIMO = 8192
 LOTE = 20
 COLGADO_MINUTOS = 10
@@ -185,7 +187,7 @@ async def _procesar(conn: asyncpg.Connection, aviso: asyncpg.Record) -> None:
         await _terminar(conn, aviso["id"], "DESCARTADA", "La cuenta ya no está conectada.")
         return
     try:
-        r = await ml.llamar(conn, aviso["user_id"], "GET", aviso["resource"])
+        r = await ml.llamar(conn, aviso["user_id"], "GET", aviso["resource"], params=PARAMETROS.get(aviso["topic"]))
     except ml.ErrorML as e:
         if e.reconectar:
             await _terminar(conn, aviso["id"], "ERROR", str(e))
