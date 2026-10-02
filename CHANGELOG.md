@@ -2,6 +2,18 @@
 
 Cambios de JZ Middle ML-Tracker, del más nuevo al más viejo. Cada entrada corresponde a un push a `main`.
 
+## 2026-10-02 - 0.9.0
+
+### Agregado
+- El middleware le informa a Tracker sus publicaciones de Mercado Libre (cuenta, SKU, estado, stock en
+  Mercado Libre, último envío y por qué no se sincroniza, si es el caso). Se ven en el módulo Mercado Libre
+  del panel de Tracker. Se manda solo cuando algo cambió, como mucho una vez por minuto
+  (ML_INFORMAR_SEGUNDOS). Con un Tracker anterior al 2026-10-02 se sigue funcionando igual, sin ese módulo.
+
+### Arreglado
+- Una variante cuyo SKU no está en Tracker podía dejar de figurar como "SKU que no está en Tracker" cuando
+  otra variante de la misma publicación ya tenía el stock al día.
+
 ## 2026-10-02 - 0.8.0
 
 ### Agregado

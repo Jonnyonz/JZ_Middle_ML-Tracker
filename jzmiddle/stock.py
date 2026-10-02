@@ -15,6 +15,7 @@ disponible que Tracker informa para el canal (segun su modo: disponible o dispon
 
 import asyncio
 from collections import defaultdict
+import time
 from datetime import datetime, timedelta, timezone
 import logging
 import math
@@ -39,6 +40,12 @@ VIGENTE = "(status = 'active' OR (status = 'paused' AND sub_status LIKE '%out_of
 
 _despertar = asyncio.Event()
 _conciliar = asyncio.Event()
+# Lista de publicaciones para Tracker: se manda cuando cambio algo, como mucho cada ML_INFORMAR_SEGUNDOS.
+_informe = {"pendiente": True, "ultimo": None, "sin_soporte_avisado": False}
+
+
+def hubo_cambios() -> None:
+    _informe["pendiente"] = True
 
 
 class _Pasajero(Exception):
@@ -120,6 +127,7 @@ async def indexar_item(conn: asyncpg.Connection, user_id: int, item: dict) -> Li
                                     ELSE ml_publicaciones.problema END
             """, f["item_id"], f["variation_id"], user_id, f["sku"], f["title"], f["status"], f["sub_status"],
                 f["logistic_type"], f["ml_quantity"], _problema_del_indice(f))
+    hubo_cambios()
     return sorted({f["sku"].upper() for f in filas
                    if not _problema_del_indice(f) and sincronizable(f["status"], f["sub_status"])})
 
@@ -282,9 +290,11 @@ async def procesar_pendientes(pool: asyncpg.Pool) -> int:
         reintentar = set()
         for (uid, item_id), filas_item in por_item.items():
             objetivo = {f["variation_id"]: _cantidad(disponible[f["sku"].upper()]) for f in filas_item}
+            variantes = list(objetivo)   # solo las que coinciden con Tracker: las demas conservan su aviso
             if all(f["ml_quantity"] == objetivo[f["variation_id"]] for f in filas_item):
                 await conn.execute("""UPDATE ml_publicaciones SET problema = NULL, last_error = NULL
-                                      WHERE item_id = $1 AND problema IN ('SKU_NO_EN_TRACKER', 'ERROR')""", item_id)
+                                      WHERE item_id = $1 AND variation_id = ANY($2::bigint[])
+                                        AND problema IN ('SKU_NO_EN_TRACKER', 'ERROR')""", item_id, variantes)
                 continue
             try:
                 await _escribir(conn, uid, item_id, objetivo)
@@ -293,11 +303,41 @@ async def procesar_pendientes(pool: asyncpg.Pool) -> int:
                 reintentar |= {f["sku"].upper() for f in filas_item}
             except _ErrorStock as e:
                 logger.warning(f"[STOCK] {item_id}: {e}")
-                await conn.execute("UPDATE ml_publicaciones SET problema = 'ERROR', last_error = $2 WHERE item_id = $1",
-                                   item_id, str(e)[:500])
+                await conn.execute("""UPDATE ml_publicaciones SET problema = 'ERROR', last_error = $2
+                                      WHERE item_id = $1 AND variation_id = ANY($3::bigint[])""", item_id, str(e)[:500], variantes)
         await conn.execute("DELETE FROM ml_stock_pendiente WHERE sku = ANY($1::text[])", [s for s in skus if s not in reintentar])
+        hubo_cambios()
         await _posponer(conn, sorted(reintentar), "Mercado Libre no respondió: se reintenta.")
         return len(skus) - len(reintentar)
+
+
+async def informar_a_tracker(pool: asyncpg.Pool) -> None:
+    """Le manda a Tracker la lista de publicaciones vigentes (modulo Mercado Libre de su panel)."""
+    if not _informe["pendiente"]:
+        return
+    if _informe["ultimo"] is not None and time.monotonic() - _informe["ultimo"] < config.ML_INFORMAR_SEGUNDOS:
+        return
+    async with pool.acquire() as conn:
+        filas = await conn.fetch("""
+            SELECT p.*, a.nickname FROM ml_publicaciones p LEFT JOIN ml_accounts a ON a.user_id = p.user_id
+            WHERE p.status = 'active' OR (p.status = 'paused' AND p.sub_status LIKE '%out_of_stock%')
+            ORDER BY p.item_id, p.variation_id
+        """)
+        lista = [{
+            "listing_id": f["item_id"], "variation_id": str(f["variation_id"]) if f["variation_id"] else None,
+            "account": f["nickname"] or str(f["user_id"]), "title": f["title"], "sku": f["sku"],
+            "status": f["status"] + (f" ({f['sub_status']})" if f["sub_status"] else ""), "quantity": f["ml_quantity"],
+            "problem": f["problema"], "detail": f["last_error"],
+            "stock_sent_at": f["sent_at"].isoformat() if f["sent_at"] else None,
+        } for f in filas]
+        _informe.update(pendiente=False, ultimo=time.monotonic())
+        try:
+            if not await tracker.informar_publicaciones(conn, lista) and not _informe["sin_soporte_avisado"]:
+                _informe["sin_soporte_avisado"] = True
+                logger.info("[STOCK] Este Tracker no tiene el modulo de publicaciones (actualizar Tracker para verlas ahi).")
+        except tracker.ErrorTracker as e:
+            _informe["pendiente"] = True
+            logger.warning(f"[STOCK] No se pudo informar las publicaciones a Tracker: {e}")
 
 
 async def _listo(conn: asyncpg.Connection) -> bool:
@@ -336,6 +376,7 @@ async def stock_en_segundo_plano(pool_de) -> None:
             await leer_eventos(pool)
             while await procesar_pendientes(pool):
                 pass
+            await informar_a_tracker(pool)
         except tracker.ErrorTracker as e:
             logger.warning(f"[STOCK] Tracker: {e}")
         except Exception as e:   # la tarea de fondo no se corta por un error puntual

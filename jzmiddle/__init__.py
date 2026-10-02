@@ -3,4 +3,4 @@
 Tracker es el dueno del stock y de la preparacion de los pedidos; este servicio traduce entre la API
 de Mercado Libre y el canal de ventas de Tracker (/api/v1/channel/*)."""
 
-__version__ = "0.8.0"
+__version__ = "0.9.0"

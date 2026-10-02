@@ -125,3 +125,16 @@ async def stock(conn: asyncpg.Connection, skus: list) -> dict:
     if r.status_code != 200:
         raise ErrorTracker(_detalle(r))
     return {f["sku"].upper(): float(f["available"]) for f in r.json().get("items", [])}
+
+
+async def informar_publicaciones(conn: asyncpg.Connection, publicaciones: list) -> bool:
+    """Lista completa de publicaciones para el modulo Mercado Libre de Tracker (reemplaza la anterior).
+    False si este Tracker todavia no tiene esa pantalla (version anterior al 2026-10-02)."""
+    url, clave = await _conexion(conn)
+    r = await llamar(url, clave, "PUT", "/api/v1/channel/listings", json={"listings": publicaciones})
+    if r.status_code in (404, 405):
+        return False
+    if r.status_code != 200:
+        raise ErrorTracker(_detalle(r))
+    return True
+

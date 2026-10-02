@@ -92,3 +92,7 @@ ML_CONCILIAR_MINUTOS = int(os.getenv("ML_CONCILIAR_MINUTOS", "60"))
 JZM_INSTALACION = os.getenv("JZM_INSTALACION", "docker").strip().lower()
 # API de GitHub para el aviso de version nueva (se puede cambiar solo para pruebas).
 UPDATER_API_URL = os.getenv("UPDATER_API_URL", "https://api.github.com").rstrip("/")
+
+# Cada cuantos segundos, como mucho, se le informa a Tracker la lista de publicaciones (modulo Mercado Libre
+# del panel de Tracker). Solo se manda si algo cambio.
+ML_INFORMAR_SEGUNDOS = int(os.getenv("ML_INFORMAR_SEGUNDOS", "60"))
