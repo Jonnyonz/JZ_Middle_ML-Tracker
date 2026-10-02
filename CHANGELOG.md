@@ -2,6 +2,14 @@
 
 Cambios de JZ Middle ML-Tracker, del más nuevo al más viejo. Cada entrada corresponde a un push a `main`.
 
+## 2026-10-02 - 0.2.0
+
+### Agregado
+- Configuración desde la página: conexión con Tracker360 (dirección y clave del canal de venta, con
+  un botón para probarla) y aplicación de Mercado Libre (Client ID y Client Secret). La página muestra
+  las dos direcciones que hay que cargar en la aplicación de Mercado Libre y una lista de lo que falta
+  configurar. Las claves se guardan en el servidor y nunca se vuelven a mostrar.
+
 ## 2026-10-02 - 0.1.0
 
 ### Agregado

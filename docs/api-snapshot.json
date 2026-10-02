@@ -11,6 +11,10 @@
     "cuerpo": false,
     "params": []
   },
+  "GET /api/config": {
+    "cuerpo": false,
+    "params": []
+  },
   "GET /api/health": {
     "cuerpo": false,
     "params": []
@@ -28,6 +32,18 @@
     "params": []
   },
   "POST /api/auth/setup/admin": {
+    "cuerpo": true,
+    "params": []
+  },
+  "POST /api/config/tracker/test": {
+    "cuerpo": false,
+    "params": []
+  },
+  "PUT /api/config/ml": {
+    "cuerpo": true,
+    "params": []
+  },
+  "PUT /api/config/tracker": {
     "cuerpo": true,
     "params": []
   }

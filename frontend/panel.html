@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Configuración - JZ Middle ML-Tracker</title>
-    <link rel="stylesheet" href="/static/css/app.css?v=0.1.0">
+    <link rel="stylesheet" href="/static/css/app.css?v=0.2.0">
 </head>
 <body>
     <header class="barra">
@@ -25,6 +25,45 @@
     </header>
 
     <main class="contenido">
+        <section class="tarjeta" id="sec-pendientes">
+            <h2>Estado de la configuración</h2>
+            <p id="config-completa" class="estado-ok oculto">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                La configuración está completa.
+            </p>
+            <ul id="lista-pendientes" class="pendientes"></ul>
+        </section>
+
+        <section class="tarjeta" id="sec-tracker">
+            <h2>Conexión con Tracker360</h2>
+            <p class="ayuda">En Tracker: Configuración, Canales de venta, crear el canal y copiar su clave (se muestra una sola vez). Si Tracker está en el mismo servidor, la dirección es la interna (por ejemplo http://127.0.0.1:8030 o, con Docker, http://host.docker.internal:8030).</p>
+            <form id="form-tracker" autocomplete="off">
+                <label>Dirección de Tracker <input id="tracker-url" placeholder="http://127.0.0.1:8030" required></label>
+                <label>Clave del canal <input id="tracker-clave" type="password" placeholder="tch_..."></label>
+                <p id="tracker-clave-estado" class="ayuda"></p>
+                <div class="acciones">
+                    <button type="submit">Guardar</button>
+                    <button type="button" id="btn-probar-tracker" class="secundario">Probar conexión</button>
+                </div>
+            </form>
+            <p id="tracker-canal" class="ayuda"></p>
+        </section>
+
+        <section class="tarjeta" id="sec-ml">
+            <h2>Aplicación de Mercado Libre</h2>
+            <p class="ayuda">En developers.mercadolibre.com.ar, crear la aplicación del cliente y cargar en ella estas dos direcciones. Después copiar acá el Client ID (App ID) y el Client Secret.</p>
+            <dl class="datos">
+                <dt>Dirección de retorno</dt><dd><code id="ml-redirect">-</code> <button type="button" class="secundario copiar" data-copiar="ml-redirect">Copiar</button></dd>
+                <dt>Notificaciones</dt><dd><code id="ml-notif">-</code> <button type="button" class="secundario copiar" data-copiar="ml-notif">Copiar</button></dd>
+            </dl>
+            <form id="form-ml" autocomplete="off">
+                <label>Client ID (App ID) <input id="ml-client-id" inputmode="numeric" required></label>
+                <label>Client Secret <input id="ml-client-secret" type="password"></label>
+                <p id="ml-secreto-estado" class="ayuda"></p>
+                <div class="acciones"><button type="submit">Guardar</button></div>
+            </form>
+        </section>
+
         <section class="tarjeta" id="sec-estado">
             <h2>Estado del servicio</h2>
             <dl class="datos">
@@ -35,7 +74,7 @@
     </main>
 
     <p id="mensaje" class="mensaje mensaje-flotante" role="alert"></p>
-    <script src="/static/js/api.js?v=0.1.0"></script>
-    <script src="/static/js/panel.js?v=0.1.0"></script>
+    <script src="/static/js/api.js?v=0.2.0"></script>
+    <script src="/static/js/panel.js?v=0.2.0"></script>
 </body>
 </html>

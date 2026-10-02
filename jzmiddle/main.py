@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from jztech_core.security_headers import SecurityHeadersMiddleware
 
-from jzmiddle import __version__, auth, db
+from jzmiddle import __version__, ajustes, auth, db
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +46,7 @@ install_generic_error_handler(app, "jzmiddle", field="detail")
 app.add_middleware(SecurityHeadersMiddleware, csp=CSP, permissions_policy="geolocation=(), microphone=(), camera=()")
 
 app.include_router(auth.router)
+app.include_router(ajustes.router)
 
 
 @app.get("/api/health")
