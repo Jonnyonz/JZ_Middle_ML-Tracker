@@ -2,6 +2,17 @@
 
 Cambios de JZ Middle ML-Tracker, del más nuevo al más viejo. Cada entrada corresponde a un push a `main`.
 
+## 2026-10-02 - 0.7.0
+
+### Cambiado
+- Las ventas Full ahora se registran en Tracker como pedidos Full (informativos: no mueven stock ni
+  entran a la preparación) para verlas junto con el resto de las ventas. Si se cancelan en Mercado
+  Libre, también se cancelan en Tracker. Requiere Tracker360 con los cambios del 2026-10-02.
+
+### Agregado
+- Las ventas Flex (se entregan en el día) llegan a Tracker como urgentes y se preparan primero.
+- En la lista de publicaciones Full se ve cuánto stock tiene Mercado Libre en su depósito.
+
 ## 2026-10-02 - 0.6.0
 
 ### Agregado

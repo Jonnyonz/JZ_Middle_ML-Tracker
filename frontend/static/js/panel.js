@@ -162,7 +162,8 @@ async function cargarStock() {
         id.textContent = p.item_id + (p.variation_id ? ` / ${p.variation_id}` : '');
         const detalle = document.createElement('span');
         detalle.className = 'aviso-detalle';
-        detalle.textContent = [p.title, p.sku ? `SKU ${p.sku}` : '', p.nickname || '', p.last_error || ''].filter(Boolean).join(' · ');
+        const enMl = p.problema === 'FULL' && p.ml_quantity !== null ? `${p.ml_quantity} u. en el depósito de Mercado Libre` : '';
+        detalle.textContent = [p.title, p.sku ? `SKU ${p.sku}` : '', enMl, p.nickname || '', p.last_error || ''].filter(Boolean).join(' · ');
         li.append(estado, id, detalle);
         return li;
     }));

@@ -8,7 +8,9 @@ es idempotente por referencia externa y aca se recuerda que se hizo con cada ven
   pedido con referencia = numero de carrito o de orden.
 - Se carga cuando todas sus ordenes activas estan pagadas (status "paid").
 - SKU: el seller_sku de la publicacion o variante (o seller_custom_field). Tiene que existir igual en Tracker.
-- Full (logistic_type fulfillment) sale del deposito de ML: no se carga en Tracker (paso 5).
+- Full (logistic_type fulfillment) sale del deposito de ML: va a Tracker como pedido informativo (Tracker
+  lo registra con estado FULL: no mueve ni compromete stock ni entra al picking) y sin etiqueta.
+- Flex (self_service: el vendedor entrega en el dia) va con urgent=true: Tracker lo prepara primero.
 - Etiqueta: cuando el envio esta ready_to_ship se baja en ZPL (ML la manda dentro de un ZIP) y se sube a
   Tracker, que la imprime al empacar.
 - Cancelada en ML -> se cancela en Tracker. Si Tracker ya la despacho, queda en error para verla a mano."""
@@ -25,6 +27,7 @@ from jzmiddle import avisos, ml, tracker
 logger = logging.getLogger(__name__)
 
 INACTIVAS = {"cancelled", "invalid"}
+URGENTES = {"SELF_SERVICE"}   # Flex
 
 
 # --- Lecturas en ML ---
@@ -177,11 +180,10 @@ async def sincronizar_venta(conn: asyncpg.Connection, user_id: int, orden: dict)
 
     envio = await _envio(conn, user_id, (activas[0].get("shipping") or {}).get("id"))
     tipo = _tipo_logistica(envio)
-    if tipo == "FULFILLMENT":
-        await _guardar(conn, ref, user_id, pack_id, ordenes, "FULL", envio)
-        return "Venta Full: sale del depósito de Mercado Libre, no se carga en Tracker."
+    es_full = tipo == "FULFILLMENT"
+    estado = "FULL" if es_full else "CARGADA"
 
-    if venta and venta["tracker_number"] and venta["estado"] == "CARGADA":
+    if venta and venta["tracker_number"] and venta["estado"] in ("CARGADA", "FULL"):
         numero = venta["tracker_number"]
         texto = f"Pedido {numero} ya cargado en Tracker."
     else:
@@ -190,6 +192,7 @@ async def sincronizar_venta(conn: asyncpg.Connection, user_id: int, orden: dict)
         pedido = {"external_ref": ref, "account": cuenta or str(user_id),
                   "buyer": {"name": nombre or None, "address": direccion or None},
                   "shipping": {"type": tipo, "shipment_ref": str(envio["id"]) if envio else None},
+                  "urgent": tipo in URGENTES,
                   "lines": _lineas(activas)}
         try:
             r = await tracker.crear_pedido(conn, pedido)
@@ -197,7 +200,13 @@ async def sincronizar_venta(conn: asyncpg.Connection, user_id: int, orden: dict)
             raise _de_tracker(e)
         numero = r["document_number"]
         texto = f"Pedido {numero} cargado en Tracker." if r.get("created") else f"Pedido {numero} ya estaba en Tracker."
-    await _guardar(conn, ref, user_id, pack_id, activas, "CARGADA", envio, numero)
+        if es_full:
+            texto = texto[:-1] + " como venta Full (sale del depósito de Mercado Libre: no mueve stock de Tracker)."
+        elif tipo in URGENTES:
+            texto = texto[:-1] + " con prioridad (Flex: se entrega en el día)."
+    await _guardar(conn, ref, user_id, pack_id, activas, estado, envio, numero)
+    if es_full:
+        return texto   # la etiqueta y el envio los maneja Mercado Libre
     venta = await conn.fetchrow("SELECT * FROM ml_ventas WHERE ref = $1", ref)
     return texto + await _etiqueta(conn, venta, envio)
 

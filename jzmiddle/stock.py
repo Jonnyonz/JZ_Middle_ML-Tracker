@@ -361,7 +361,7 @@ async def estado(admin: dict = Depends(require_admin), conn: asyncpg.Connection 
     conteo = {r["problema"]: r["n"] for r in await conn.fetch(
         f"SELECT COALESCE(problema, 'OK') AS problema, count(*) AS n FROM ml_publicaciones WHERE {VIGENTE} GROUP BY 1")}
     lista = await conn.fetch(f"""
-        SELECT p.item_id, p.variation_id, p.title, p.sku, p.problema, p.last_error, a.nickname
+        SELECT p.item_id, p.variation_id, p.title, p.sku, p.problema, p.last_error, p.ml_quantity, a.nickname
         FROM ml_publicaciones p LEFT JOIN ml_accounts a ON a.user_id = p.user_id
         WHERE (p.status = 'active' OR (p.status = 'paused' AND p.sub_status LIKE '%out_of_stock%'))
           AND p.problema IS NOT NULL
