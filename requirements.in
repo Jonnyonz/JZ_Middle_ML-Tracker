@@ -1,0 +1,11 @@
+# Dependencias DIRECTAS del middleware, con version exacta (set comun de la suite JZTech, ver
+# JZTech_Plan_Dependencias_y_Instalacion_Nativa.md, seccion 3). Lo transitivo lo fija requirements.txt.
+# Regenerar el lockfile SIEMPRE desde Python 3.11 (el piso soportado), por ejemplo con Docker:
+#   docker run --rm -v "$PWD:/w" -w /w python:3.11-slim sh -c "pip install pip-tools==7.4.1 && pip-compile --allow-unsafe --generate-hashes --output-file=requirements.txt requirements.in"
+# Instalar siempre con: pip install --require-hashes --only-binary=:all: -r requirements.txt
+fastapi==0.141.1
+uvicorn==0.54.0
+pydantic==2.13.5
+asyncpg==0.31.0
+httpx==0.28.1
+jztech-core @ https://github.com/Jonnyonz/jztech-core/releases/download/v0.1.5/jztech_core-0.1.5-py3-none-any.whl

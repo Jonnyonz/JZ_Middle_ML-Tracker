@@ -1,0 +1,43 @@
+# Instalacion con Docker (la nativa esta en install-native.sh). Base propia del middleware en su
+# propio contenedor; el servicio solo escucha en localhost: Caddy (o el proxy del servidor) expone HTTPS.
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - jzmiddle_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    mem_limit: ${DB_MEM_LIMIT:-256m}
+
+  app:
+    build: .
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8040}:8000"
+    # Tracker360 en el mismo servidor: el middleware le habla por la red del host.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: ${APP_MEM_LIMIT:-192m}
+
+volumes:
+  jzmiddle_pgdata:

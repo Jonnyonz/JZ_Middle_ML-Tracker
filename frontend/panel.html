@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Configuración - JZ Middle ML-Tracker</title>
+    <link rel="stylesheet" href="/static/css/app.css?v=0.1.0">
+</head>
+<body>
+    <header class="barra">
+        <div class="marca">
+            <svg class="icono-marca" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10l-3-3M20 17H10l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+                <h1>JZ Middle</h1>
+                <p class="sub">Mercado Libre &harr; Tracker360</p>
+            </div>
+        </div>
+        <div class="barra-derecha">
+            <span id="usuario" class="usuario"></span>
+            <button id="btn-salir" class="secundario" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Salir
+            </button>
+        </div>
+    </header>
+
+    <main class="contenido">
+        <section class="tarjeta" id="sec-estado">
+            <h2>Estado del servicio</h2>
+            <dl class="datos">
+                <dt>Versión</dt><dd id="estado-version">-</dd>
+                <dt>Esquema de la base</dt><dd id="estado-esquema">-</dd>
+            </dl>
+        </section>
+    </main>
+
+    <p id="mensaje" class="mensaje mensaje-flotante" role="alert"></p>
+    <script src="/static/js/api.js?v=0.1.0"></script>
+    <script src="/static/js/panel.js?v=0.1.0"></script>
+</body>
+</html>

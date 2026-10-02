@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JZ Middle ML-Tracker</title>
+    <link rel="stylesheet" href="/static/css/app.css?v=0.1.0">
+</head>
+<body class="centrado">
+    <main class="tarjeta tarjeta-chica">
+        <header class="marca">
+            <svg class="icono-marca" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10l-3-3M20 17H10l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+                <h1>JZ Middle</h1>
+                <p class="sub">Mercado Libre &harr; Tracker360</p>
+            </div>
+        </header>
+
+        <form id="form-login" class="oculto" autocomplete="on">
+            <label>Usuario <input id="login-usuario" name="username" required autocomplete="username"></label>
+            <label>Contraseña <input id="login-clave" name="password" type="password" required autocomplete="current-password"></label>
+            <button type="submit">Ingresar</button>
+        </form>
+
+        <form id="form-setup" class="oculto" autocomplete="off">
+            <p class="ayuda">Configuración inicial: creá el usuario administrador. El token de instalación lo generó el instalador (está en el archivo de configuración del servidor).</p>
+            <label>Token de instalación <input id="setup-token" required></label>
+            <label>Usuario <input id="setup-usuario" required autocomplete="username"></label>
+            <label>Contraseña (mínimo 10 caracteres) <input id="setup-clave" type="password" required minlength="10" autocomplete="new-password"></label>
+            <button type="submit">Crear administrador</button>
+        </form>
+
+        <p id="mensaje" class="mensaje" role="alert"></p>
+    </main>
+    <script src="/static/js/api.js?v=0.1.0"></script>
+    <script src="/static/js/index.js?v=0.1.0"></script>
+</body>
+</html>

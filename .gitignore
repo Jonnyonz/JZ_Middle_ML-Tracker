@@ -1,0 +1,20 @@
+# Secretos de la instalacion
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Respaldos que hace jz-middle-actualizar y volcados de la base
+backups/
+*.dump
+*.sql.gz
+
+# Herramientas locales
+.serena/
+.idea/
+.vscode/
